@@ -12,10 +12,21 @@ class Item(db.Model, Serializable, Auditable):
     image_url = db.Column(db.String)
 
 
-    def recipe(self):
+    def recipe(self, flat=False):
+        if not self.recipe_items:
+            return None
+
         dct = {}
         for recipe_item in self.recipe_items:
-            dct.update(recipe_item.serialize())
+            if not flat:
+                dct.update(recipe_item.serialize())
+            elif recipe_item.dest_item.recipe_items.count():
+                for (name, count) in recipe_item.dest_item.recipe(flat=flat).items():
+                    dct[name] = dct.get(name, 0) + count
+            else:
+                name = recipe_item.dest_item.name
+                dct[name] = dct.get(name, 0) + recipe_item.count
+
         return dct
 
     def serialize(self, **kwargs):
@@ -24,8 +35,9 @@ class Item(db.Model, Serializable, Auditable):
         del attrs['recipes_using']
 
         with_recipe = kwargs.get('recipe', False)
+        flat = kwargs.get('flat', False)
         if with_recipe:
-            attrs['recipe'] = self.recipe()
+            attrs['recipe'] = self.recipe(flat=flat)
 
         return attrs
 

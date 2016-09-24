@@ -22,4 +22,7 @@ class RecipeItem(db.Model, Serializable):
         return recipe
 
     def serialize(self, **kwargs):
-        return { self.dest_item.name: self.count }
+        attrs = { 'count': self.count }
+        if self.dest_item.recipe_items.count():
+            attrs['recipe'] = self.dest_item.recipe()
+        return { self.dest_item.name: attrs }

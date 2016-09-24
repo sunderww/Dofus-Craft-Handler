@@ -31,4 +31,5 @@ def get_items_by_name():
 @item_bp.route('/items/<id>/recipe', methods=['GET'])
 def get_item_recipes(id):
     item = Item.query.get(id)
-    return jsonify(item.serialize(recipe=True))
+    flat = request.args.get('flat', False)
+    return jsonify(item.serialize(recipe=True, flat=flat))

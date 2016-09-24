@@ -54,5 +54,15 @@ def load_database(filename):
             db.session.add(item)
         db.session.commit()
 
+# Add useful classes to avoid importing everything each time you run a shell
+@manager.shell
+def make_shell_context():
+    return dict(
+        app=app,
+        db=db,
+        Item=Item,
+        RecipeItem=RecipeItem
+    )
+
 if __name__ == '__main__':
     manager.run()
